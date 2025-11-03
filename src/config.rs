@@ -26,6 +26,9 @@ pub struct Config {
     pub hdfs_url: String,
 
     pub namespace: Option<String>,
+
+    /// Optional table prefix for HBase tables, e.g. "base" -> "base.blocks"
+    pub table_prefix: Option<String>,
 }
 
 impl Config {

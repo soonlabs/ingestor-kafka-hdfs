@@ -41,6 +41,7 @@ async fn main() -> Result<()> {
     let ledger_storage_config = LedgerStorageConfig {
         address: config.hbase_address.clone(),
         namespace: config.namespace.clone(),
+        table_prefix: config.table_prefix.clone(),
         uploader_config: uploader_config.clone(),
         cache_config: cache_config.clone(),
     };

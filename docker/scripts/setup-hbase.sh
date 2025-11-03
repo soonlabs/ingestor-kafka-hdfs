@@ -18,10 +18,19 @@ echo "HBase is ready."
 
 # Define tables and column families
 echo "Creating HBase tables..."
-echo "create 'blocks', 'x'" | /opt/hbase/bin/hbase shell || echo "INFO: Table 'blocks' already exists, skipping."
-echo "create 'tx', 'x'" | /opt/hbase/bin/hbase shell || echo "INFO: Table 'tx' already exists, skipping."
-echo "create 'tx-by-addr', 'x'" | /opt/hbase/bin/hbase shell || echo "INFO: Table 'tx-by-addr' already exists, skipping."
-echo "create 'tx_full', 'x'" | /opt/hbase/bin/hbase shell || echo "INFO: Table 'tx_full' already exists, skipping."
+TABLE_PREFIX="${TABLE_PREFIX:-}"
+TABLES=("blocks" "tx" "tx-by-addr" "tx_full")
+
+for table in "${TABLES[@]}"; do
+  if [ -n "$TABLE_PREFIX" ]; then
+    full_table="${TABLE_PREFIX}.${table}"
+  else
+    full_table="$table"
+  fi
+
+  echo "create '${full_table}', 'x'" | /opt/hbase/bin/hbase shell || \
+    echo "INFO: Table '${full_table}' already exists, skipping."
+done
 
 echo "HBase table creation completed."
 exit 0

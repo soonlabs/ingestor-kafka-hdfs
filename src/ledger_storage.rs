@@ -283,6 +283,7 @@ pub const DEFAULT_MEMCACHE_TIMEOUT_SECS: u64 = 1;
 pub struct LedgerStorageConfig {
     pub address: String,
     pub namespace: Option<String>,
+    pub table_prefix: Option<String>,
     pub uploader_config: UploaderConfig,
     pub cache_config: LedgerCacheConfig,
 }
@@ -292,6 +293,7 @@ impl Default for LedgerStorageConfig {
         Self {
             address: DEFAULT_ADDRESS.to_string(),
             namespace: None,
+            table_prefix: None,
             uploader_config: UploaderConfig::default(),
             cache_config: LedgerCacheConfig::default(),
         }
@@ -415,12 +417,14 @@ impl LedgerStorage {
         let LedgerStorageConfig {
             address,
             namespace,
+            table_prefix,
             uploader_config,
             cache_config,
         } = config;
         let connection = HBaseConnection::new(
             address.as_str(),
             namespace.as_deref(),
+            table_prefix.as_deref(),
         )
             .await;
 
