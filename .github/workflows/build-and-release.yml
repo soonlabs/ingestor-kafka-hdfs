@@ -4,30 +4,35 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag name for the release"
+        required: true
+        default: "v2.3.1"
+        type: string
 
 jobs:
   build_and_push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
+      packages: write # This is required for pushing to github registry
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Build and push Docker image
         run: |
-          docker build -t dexterlaboss/ingestor-kafka-hbase:${GITHUB_REF_NAME} .
-          docker push dexterlaboss/ingestor-kafka-hbase:${GITHUB_REF_NAME}
+          docker build -t ghcr.io/soonlabs/ingestor-kafka-hbase:${{ github.event.inputs.tag_name }} .
+          docker push ghcr.io/soonlabs/ingestor-kafka-hbase:${{ github.event.inputs.tag_name }}
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref }}
-          name: Release ${{ github.ref }}
-          body: 'Release of version ${{ github.ref }}'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
